@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Dashboard</title>
+    <style>
+        * {
+            text-decoration: none;
+        }
+        .navbar {
+            background-color: lightblue;
+            padding-right: 15px;
+            padding-left: 15px;
+            border-radius: 5px;
+        }
+        ul li{
+            vertical-align: middle;            
+        }
+        .navdiv {
+            display:flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 22px;
+            color: red;
+            font-style: italic;
+        }
+        li {
+            list-style: none;
+            display: inline;
+        }
+        li a {
+            color: green;
+            font-size: 16px;
+            font-style: italic;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        table ,th, td {
+            text-align: center;
+            font-style: italic;
+            width:1050px;
+            margin-left: 50px;
+            border-radius: 10px;
+            border-color: blue;
+            border: 1px solid black;
+            border-collapse: collapse ;
+        }
+        h2 {
+            margin-left: 50px;
+            margin-top: 20px;
+            font-style: italic;
+            font-size: 20px;
+            color: blue;
+        }
+        #profile {
+            border:1px solid black;
+            border-radius: 10px;
+            width:150px;
+            text-align: center;
+            margin-left: 800px;
+            margin-top: 20px;
+            font-style: italic;
+            font-size: 20px;
+            color:brown;
+        }
+        button {
+            padding: 1px 6px;
+            border: 1px outset buttonborder;
+            border-radius: 5px;
+            color: black;
+            background-color: gray;
+            text-decoration: none;
+            font-size:18px
+        }
+        .btn1 {
+            background:gray;
+            border: 1px outset buttonborder;
+            border-radius: 5px;
+            color:white;
+            height:20px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div id="header">
+        <nav class="navbar">
+            <div class="navdiv">
+                <div class="logo">Welcome {{professional_name}} (Professional Dashboard)</div>
+                <ul>
+                    <li><a href="#">Home |</a></li>
+                    <li><a href="/professionalsearch/{{professional_id}}">Search |</a></li>
+                    <li><a href="/professionalsummary/{{professional_id}}">Summary |</a></li>
+                    <li><a href="/login">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div id="main">
+        {{professional_id}}
+        <div id="profile">
+            <p>Professional's details</p>
+            <button><a style="color:white;" href="/viewprofessionalprofile/{{professional_id}}">View</a></button>
+            <button><a style="color:white;" href="/viewprofessionalprofile/{{professional_id}}/edit">Edit</a></button>
+            <p></p>
+        </div>
+        <div id="todayservicerequests">
+            <h2>Today's New Service Requests (Location-{{professional_location}})</h2>
+            <table id="today_service-request">
+                <thead id="th">
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Phone Number</th>
+                        <th>Location(Pincode)</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in cservice%}
+                    {% if  (entry.service_status=="requested" or entry.service_status=="rejected") and entry.location==professional_location %}
+                    {% for us in user %}
+                    {%if entry.customer_id==us.id%}
+                    <tr>
+                        <td>{{entry["id"]}}</td>
+                        <td>{{us.full_name}}</td>
+                        <td>{{us.phone_number}}</td>
+                        <td>{{entry.location}}</td>
+                        <td>{{entry.service_status}}</td>
+                        <td>
+                            <a href="/acceptcustomerservicerequests/{{professional_id}}/{{entry.id}}/accept">Accept</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="todayservicerequests">
+            <br>
+            <h2>Today's Accepted Service Requests</h2>
+            <table id="today_service-request">
+                <thead id="th">
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Phone Number</th>
+                        <th>Location(Pincode)</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in cservice%}
+                    {% if  entry.service_status=="accepted" and professional_id|string() == entry.professional_id|string() and entry.location==professional_location %}
+                    {% for us in user %}
+                    {%if entry.customer_id==us.id%}
+                    <tr>
+                        <td>{{entry["id"]}}</td>
+                        <td>{{us.full_name}}</td>
+                        <td>{{us.phone_number}}</td>
+                        <td>{{entry.location}}</td>
+                        <td>{{entry.service_status}}</td>
+                        <td>
+                            <!--a href="/rejectcustomerservicerequests/{{professional_id}}/{{entry.id}}/reject">Reject</a-->
+                            <button class="btn1"><a style="font-style:italic;color:white;font-size:14px;" class="a1" href="/rejectcustomerservicerequests/{{professional_id}}/{{entry.id}}/reject">Reject</a></button> / <button class="btn1"><a class="a1" style="font-style:italic;color:white;font-size:14px;" href="/professionalcloseservice/{{entry.id}}/{{professional_id}}">Close it ?</a></button>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="closedservicerequests">
+            <br>
+            <h2>Closed Service Requests</h2>
+            <table id="closed-service-requests">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Phone Number</th>
+                        <th>Location(Pincode)</th>
+                        <th>Date</th>
+                        <th>Ratings</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in cservice%}
+                    {% if  entry.service_status=="closed" and professional_id|string() == entry.professional_id|string() and entry.location==professional_location %}
+                    {% for us in user %}
+                    {%if entry.customer_id==us.id%}
+                    <tr>
+                        <td>{{entry.id}}</td>
+                        <td>{{us.full_name}}</td>
+                        <td>{{us.phone_number}}</td>
+                        <td>{{entry.location}}</td>
+                        <td>{{entry.date_of_completion}}</td>
+                        <td>{{entry.ratings}}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="todayservicerequests">
+            <h2>Today's New Service Requests (Location-All)</h2>
+            <table id="today_service-request">
+                <thead id="th">
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Phone Number</th>
+                        <th>Location(Pincode)</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in cservice%}
+                    {% if  (entry.service_status=="requested" or entry.service_status=="rejected")%}
+                    {% for us in user %}
+                    <!--{%if entry.customer_id==us.id%} -->
+                    <tr>
+                        <td>{{entry["id"]}}</td>
+                        <td>{{us.full_name}}</td>
+                        <td>{{us.phone_number}}</td>
+                        <td>{{entry.location}}</td>
+                        <td>{{entry.service_status}}</td>
+                        <td>
+                            <a href="/acceptcustomerservicerequests/{{professional_id}}/{{entry.id}}/accept">Accept</a>
+                        </td>
+                    </tr>
+                    <!--{% endif %} -->
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="footer">
+
+    </div>
+    
+</body>
+</html>

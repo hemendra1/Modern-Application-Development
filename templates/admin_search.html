@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Search</title>
+    <style>
+        * {
+            text-decoration: none;
+        }
+        .navbar {
+            background-color: lightblue;
+            padding-right: 15px;
+            padding-left: 15px;
+            border-radius: 5px;
+        }
+        ul li{
+            vertical-align: middle;            
+        }
+        .navdiv {
+            display:flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 22px;
+            color: red;
+            font-style: italic;
+        }
+        li {
+            list-style: none;
+            display: inline;
+        }
+        li a {
+            color: green;
+            font-size: 16px;
+            font-style: italic;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        #search {
+            font-style:italic;
+            font-size:20px;
+            margin-top:20px;
+            margin-left:700px;
+
+        }
+        #servicename {
+            font-style:italic;
+            font-size:15px;
+        }
+        #searchtext {
+            font-style:italic;
+            font-size:15px;
+        }
+        table ,th, td {
+            text-align: center;
+            font-style: italic;
+            width:900px;
+            margin-top: 20px;
+            margin-left: 50px;
+            border-radius: 10px;
+            border-color: blue;
+            border: 1px solid black;
+            border-collapse: collapse ;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div id="header">
+        <nav class="navbar">
+            <div class="navdiv">
+                <div class="logo">Welcome (Admin Dashboard)</div>
+                <ul>
+                    <li><a href="/admindashboard">Home |</a></li>
+                    <li><a href="/adminsearch">Search |</a></li>
+                    <li><a href="/adminsummary">Summary |</a></li>
+                    <li><a href="/login">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div id="main">
+        <form action="/adminsearch" id="form" method="POST">
+            <div id="search">
+                <label for="dropdown1">Search by :</label>
+                <select name="s_name" id="dropdown1"onchange="populateDropdown2()" row="4" cols="21">
+                    <option value="">Select an option </option>
+                    <option value="option1">Home Service requests</option>
+                    <option value="option2">Customers</option>
+                    <option value="option3">Professionals</option>
+                </select>
+                <label for="dropdown2"></label>
+                    <select name ="s_text" id ="dropdown2">
+                        <option value="">Select an option </option>
+                    </select>
+                    <button type="submit" btn btn-primary data-bs-toggle="tooltip" data-bs-placement="left" title="Click to search">Search</button>
+                </div>
+                <script>
+                    const dropdown1 = document.getElementById("dropdown1");
+                    const dropdown2 = document.getElementById("dropdown2");
+            
+                    const optionsMap = {
+                    option1: ["requested", "accepted", "closed"],
+                    option2: ["A","B"],
+                    option3: ["C","D"],
+                    };
+            
+                    function populateDropdown2() {
+                    let selectedOption = dropdown1.value;
+                    dropdown2.innerHTML = "<option value=''>Select an option</option>";
+            
+                    if (selectedOption !== "") {
+                        let options = optionsMap[selectedOption];
+                        for (let i = 0; i < options.length; i++) {
+                        let optionElement = document.createElement("option");
+                        optionElement.value = options[i];
+                        optionElement.text = options[i];
+                        dropdown2.appendChild(optionElement);
+                        }
+                    }
+                    }
+                </script>
+            </div>
+        </form>
+        {% if searchby=="option3" %}
+        <div>
+            <h2 style="font-style:italic;color:blue">Service Professional's List</h2>
+            <h4 style="color:red;">(Admin may block/unblock professionals)</h4>
+            <table id = "professionals-table">
+                <thead id="th">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Experience</th>
+                        <th>Service Name</th>
+                        <th>Status</th>
+                        <th>Customer Reviews</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in professionals %}
+                    {% if entry.role==2 %}
+                    <tr>
+                        <td><a href="/viewprofessional/{{entry.id}}">{{entry["id"]}}<a/></td>
+                        <td>{{entry["full_name"]}}</td>
+                        <td>{{entry["experience"]}}</td>
+                        <td>{{entry["service_name"]}}</td>
+                        <td>{{entry["status"]}}</td>
+                        <td>{{entry["reviews"]}}</td>
+                        <td><a href="/blockprofessional/{{entry.id}}/reject">Block</a>| <a href="/blockprofessional/{{entry.id}}/approve">Unblock</a></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                <tbody>
+            </table>
+        </div>
+    {% elif searchby=="option2" %}
+        <div>
+            <h2 style="font-style:italic;color:blue;">Customers list</h2>
+            <h4 style="color:red;">(Admin may block/unblock customers)</h4>
+            <table id = "customer-table">
+                <thead id="th">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Experience</th>
+                        <th>Service Name</th>
+                        <th>Status</th>
+                        <th>Reviews</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in customers%}
+                    {% if entry.role==1 %}
+                    <tr>
+                        <td><a href="/viewprofessional/{{entry.id}}">{{entry["id"]}}<a/></td>
+                        <td>{{entry["full_name"]}}</td>
+                        <td>{{entry["experience"]}}</td>
+                        <td>{{entry["service_name"]}}</td>
+                        <td>{{entry["status"]}}</td>
+                        <td>{{entry["reviews"]}}</td>
+                        <td><a href="/blockprofessional/{{entry.id}}/reject">Block</a>| <a href="/blockprofessional/{{entry.id}}/approve">Unblock</a></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+    {% elif searchby=="option1" %}
+            <div>
+                <h2 style="font-style:italic;color:blue;">Customer Service Requests</h2>
+                <h4 style="font-style:italic;color:red;">(Status type: "{{searchtext}}"")</h4>
+                <table id = "servicerequest-table">
+                    <thead id="th">
+                        <tr>
+                            <th>ID</th>
+                            <th>Custmer Name</th>
+                            <th>Service Name</th>
+                            <th>Assigned Professional</th>
+                            <th>Requested Date</th>
+                            <th>Status(Requested/Accepted/Closed)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="td">
+                        {% for entry in crequests%}
+                            {% if entry["service_status"]==searchtext %}
+                                {% for ent in username %}
+                                    {% if entry["professional_id"]==ent["id"] %}
+                                        {%for et in servname %}
+                                            {% if entry["service_id"]==et["id"] %}
+                                                <tr>
+                                                    <td>{{entry["id"]}}</td>
+                                                    <td>{{entry["customer_id"]}}</td>
+                                                    <td>{{et["servicename"]}}</td>
+                                                    <td>{{entry["professional_id"]}}</td>
+                                                    <td>{{entry["date_of_request"]}}</td>
+                                                    <td>{{entry["service_status"]}}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    <tbody>
+                </table>
+            </div>
+        {% else %}
+         <!--p>Done</p-->
+         <div>
+            <h2 style="font-style:italic;color:blue;">Customer Service Requests</h2>
+            <h4 style="font-style:italic;color:red;">(Status type: All)</h4>
+            <table id = "servicerequest-table">
+                <thead id="th">
+                    <tr>
+                        <th>ID</th>
+                        <th>Service Name</th>
+                        <th>Assigned Professional</th>
+                        <th>Requested Date</th>
+                        <th>Status(Requested/Accepted/Closed)</th>
+                    </tr>
+                </thead>
+                <tbody id="td">
+                    {% for entry in crequests%}
+                    <tr>
+                        <td>{{entry["id"]}}</td>
+                        <td>{{entry["service_id"]}}</td>
+                        <td>{{entry["professional_id"]}}</td>
+                        <td>{{entry["date_of_request"]}}</td>
+                        <td>{{entry["service_status"]}}</td>
+                    </tr>   
+                    {% endfor %}
+                <tbody>
+            </table>
+        </div>
+    {% endif %}
+    </div>
+    <div id="footer">
+
+    </div>
+    
+</body>
+</html>
